@@ -15,7 +15,7 @@ char subTopic[] = "npy124/feeds/window-fan";
 const int pwmRes = 250;
 const int pwmPin = 5;
 const int pwmUnstallDuty = 75;
-const int pwmUnstallMs = 500;
+const int pwmUnstallMs = 250;
 int pwmCurrentDuty = 0;
 
 WiFiClient wifiClient;
@@ -85,11 +85,15 @@ void callback(char *topic, byte *payload, unsigned int length)
   {
     // Hit the fan hard to avoid stalling
     pwm.analogWrite(pwmUnstallDuty, pwmUnstallDuty * 10);
+    Serial.print("Running fan at ");
+    Serial.println(pwmUnstallDuty);
     delay(pwmUnstallMs);
   }
 
   pwmCurrentDuty = pwmDuty;
   pwm.analogWrite(pwmPin, pwmDuty * 10);
+  Serial.print("Running fan at ");
+  Serial.println(pwmDuty);
 }
 
 void reconnect()

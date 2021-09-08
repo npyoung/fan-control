@@ -14,9 +14,10 @@ char subTopic[] = "npy124/feeds/window-fan";
 
 const int pwmRes = 250;
 const int pwmPin = 5;
-const int pwmUnstallDuty = 75;
-const int pwmUnstallMs = 250;
-int pwmCurrentDuty = 0;
+const int pwmMin = 65;
+const int pwmMax = 100;
+int pwmDuty = 0;
+int pwmMs = 0;
 
 WiFiClient wifiClient;
 PubSubClient client(wifiClient);
@@ -56,7 +57,7 @@ void setup_pwm()
 
   pwm.setClockDivider(1, false);
   pwm.timer(0, 4, pwmRes, false);
-  pwm.analogWrite(pwmPin, pwmCurrentDuty);
+  pwm.analogWrite(pwmPin, pwmMs);
 
   Serial.print("output frequency=");
   Serial.print(pwm.frequency(0));
@@ -70,30 +71,21 @@ void callback(char *topic, byte *payload, unsigned int length)
   Serial.print("] ");
   Serial.println();
 
-  int pwmDuty = atoi((char *)payload);
+  pwmDuty = atoi((char *)payload);
   Serial.print("Requested duty cycle: ");
   Serial.println(pwmDuty);
-  
-  if (pwmDuty < 0)
-  {
+
+  if (pwmDuty < 0) {
     pwmDuty = 0;
   } else if (100 < pwmDuty) {
     pwmDuty = 100;
   }
+  
+  pwmMs = 10 * pwmMin + pwmDuty * (pwmMax - pwmMin) / 10;
 
-  if ((pwmCurrentDuty < pwmDuty) && (pwmDuty < pwmUnstallDuty))
-  {
-    // Hit the fan hard to avoid stalling
-    pwm.analogWrite(pwmUnstallDuty, pwmUnstallDuty * 10);
-    Serial.print("Running fan at ");
-    Serial.println(pwmUnstallDuty);
-    delay(pwmUnstallMs);
-  }
-
-  pwmCurrentDuty = pwmDuty;
-  pwm.analogWrite(pwmPin, pwmDuty * 10);
+  pwm.analogWrite(pwmPin, pwmMs);
   Serial.print("Running fan at ");
-  Serial.println(pwmDuty);
+  Serial.println(pwmMs);
 }
 
 void reconnect()

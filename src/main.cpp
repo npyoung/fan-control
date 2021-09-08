@@ -76,12 +76,14 @@ void callback(char *topic, byte *payload, unsigned int length)
   Serial.println(pwmDuty);
 
   if (pwmDuty < 0) {
-    pwmDuty = 0;
+    pwmMs = 0;
+  } else if (pwmDuty == 0) {
+    pwmMs = 0;
   } else if (100 < pwmDuty) {
-    pwmDuty = 100;
+    pwmMs = 1000;
+  } else {
+    pwmMs = 10 * pwmMin + pwmDuty * (pwmMax - pwmMin) / 10;
   }
-  
-  pwmMs = 10 * pwmMin + pwmDuty * (pwmMax - pwmMin) / 10;
 
   pwm.analogWrite(pwmPin, pwmMs);
   Serial.print("Running fan at ");

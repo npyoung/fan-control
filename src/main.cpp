@@ -12,9 +12,9 @@ const char *mqttPassword = mqttPASSWORD;
 
 char subTopic[] = "npy124/feeds/window-fan";
 
-const int pwmRes = 250;
+const int pwmRes = 1000;
 const int pwmPin = 5;
-const int pwmMin = 65;
+const int pwmMin = 30;
 const int pwmMax = 100;
 int pwmDuty = 0;
 int pwmMs = 0;
@@ -56,7 +56,7 @@ void setup_pwm()
   Serial.println("Setting up pwm");
 
   pwm.setClockDivider(1, false);
-  pwm.timer(0, 4, pwmRes, false);
+  pwm.timer(0, 16, pwmRes, false);
   pwm.analogWrite(pwmPin, pwmMs);
 
   Serial.print("output frequency=");
@@ -71,7 +71,14 @@ void callback(char *topic, byte *payload, unsigned int length)
   Serial.print("] ");
   Serial.println();
 
-  pwmDuty = atoi((char *)payload);
+  Serial.print("Payload length: ");
+  Serial.println(length);
+
+  char p[4];
+  strncpy(p, (char *)payload, (length > sizeof(p)) ? sizeof(p) : length);
+  p[sizeof(p)-1] = 0;
+
+  pwmDuty = atoi(p);
   Serial.print("Requested duty cycle: ");
   Serial.println(pwmDuty);
 

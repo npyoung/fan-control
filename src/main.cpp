@@ -14,7 +14,7 @@ char subTopic[] = "npy124/feeds/window-fan";
 
 const int pwmRes = 1000;
 const int pwmPin = 5;
-const int pwmMin = 30;
+const int pwmMin = 60;
 const int pwmMax = 100;
 int pwmDuty = 0;
 int pwmMs = 0;
@@ -56,7 +56,7 @@ void setup_pwm()
   Serial.println("Setting up pwm");
 
   pwm.setClockDivider(1, false);
-  pwm.timer(0, 16, pwmRes, false);
+  pwm.timer(0, 1, pwmRes, true);
   pwm.analogWrite(pwmPin, pwmMs);
 
   Serial.print("output frequency=");
